@@ -1,8 +1,8 @@
-package jlox.lox;
+package jlox.loxc;
 
 import java.util.List;
 
-import static jlox.lox.TokenType.*;
+import static jlox.loxc.TokenType.*;
 
 class Parser {
   private static class ParseError extends RuntimeException {}
@@ -23,7 +23,52 @@ class Parser {
   }
 
   private Expr expression(){
-    return equality();
+    return comma();
+  }
+
+  /*
+  Grammar for commas:
+  comma → equality ("," equality)*;
+  */
+  private Expr comma(){
+    Expr expr = conditional();
+
+    // Commas are just binary operators so the code is the same as all the other binary operators
+    while (match(COMMA)){
+      Token operator = previous();
+      Expr right = conditional();
+      expr = new Expr.Binary(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  /*
+  Grammar for conditionals:
+  conditional → equality ("?" (expression) ":" (conditional))?
+  */
+  // Conditionals are *right associative*
+  // You can have any expression between the ? and :
+  // This is since a ? b,c : d is unambiguous regardless of the precedence of the operators.
+  // It can either evaluate to a ? c : d (applying ?: first) 
+  // Or c : d (applying comma operator first)
+  // But c : d isn't a valid expresion, so it must be a ? c : d.
+  private Expr conditional() {
+    Expr expr = equality();
+
+    if (match(QUESTION)) {
+      Token op1 = previous();
+      Expr left = expression();
+      
+      if (match(COLON)) {
+        Token op2 = previous();
+        Expr right = conditional();
+
+        expr = new Expr.Ternary(expr, op1, left, op2, right);
+      }
+    }
+
+    return expr;
   }
 
   private Expr equality() {
@@ -77,6 +122,31 @@ class Parser {
     if (match(BANG, MINUS)) {
       Token operator = previous();
       return new Expr.Unary(operator, unary());
+    }
+
+    // Error production, if a binary operator is being used like a unary operator then report an error
+    if (match(BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, PLUS, SLASH, STAR)) {
+      Token operator = previous();
+      Lox.error(operator, "This is not a valid unary operator!");
+
+      // Discard right hand operand of appropriate precedence based on the attempted unary operator
+      switch (operator.type) {
+        case BANG_EQUAL :
+        case EQUAL_EQUAL : comparison(); break;
+
+        case GREATER :
+        case GREATER_EQUAL :
+        case LESS :
+        case LESS_EQUAL : term(); break;
+
+        case PLUS : {factor();}; break;
+        
+        case SLASH : unary(); break;
+        case STAR : unary(); break;
+      }
+
+      // Keep parsing and try again with the next expression
+      return expression();
     }
 
     return primary();

@@ -1,0 +1,16 @@
+Original:
+expr → expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+
+     | IDENTIFIER
+     | NUMBER
+
+Without |*?+:
+expr → "(" expr "," expr ")"
+expr → "(" expr ")"
+expr → expr.IDENTIFIER
+expr → expr "()"
+
+expr → IDENTIFIER
+expr → NUMBER
+
+Encodes a function argument grammar, e.g. 
+average(5, 3, 7, my_num).round() is a valid expression in this grammar.

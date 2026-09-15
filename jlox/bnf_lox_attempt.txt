@@ -1,0 +1,12 @@
+My attempt at defining the BNF for basic expressions in lox
+
+<expression> := <expression> | '('<expression>')' | <expression> <binary_operator> <expression> | <unary_operator> <expression> | <literal>
+<binary_operator> := '!=' | '==' | '>' | '>=' | '<' | '<=' | '+' | '*' | '-' | '/'
+<unary_operator> := '!' | '-'
+<literal> := NUMBER | STRING | 'true' | 'false' | 'nil'
+
+This is equivalent to the one in the textbook!! Let's gooo.
+
+The main issue with this grammar is that it doesn't have built in type checking, STRING + NUMBER is a valid expression.
+We would want to probably specify something like <binary_expression> := STRING <binary_operator> STRING | NUMBER <binary_operator> NUMBER | ...
+But the book doesn't do this straight away.

@@ -1,0 +1,11 @@
+At the moment it returns NaN for 0/0, infinity for (positive number) / 0 and -infinity for (negative number) / 0
+This is because this is Java's default behaviour for floating point division by zero.
+
+I think this is sensible since it follows the IEEE-754 behaviour.
+
+C++ has the same behaviour.
+
+Both C++ and Java give errors for integer division by zero, 
+but since we don't have integer types I don't think it would be sensible to give an error only when the floats happen to be integers (end in .0).
+
+Python will just give an error regardless.

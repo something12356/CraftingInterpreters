@@ -1,0 +1,3 @@
+I'd extend < to compare strings lexographically, like in python. I'd also make false < true valid.
+I wouldn't let < compare two different types as I think that in most cases that will have happened due to a user mistake
+(e.g. the user meant to cast a number to a string to sort it lexographically.)o

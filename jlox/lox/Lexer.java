@@ -53,7 +53,7 @@ class Lexer {
       case '!' : addToken(match('=') ? BANG_EQUAL : BANG); break;
       case '=' : addToken(match('=') ? EQUAL_EQUAL : EQUAL); break;
       case '>' : addToken(match('=') ? GREATER_EQUAL : GREATER); break;
-      case '<' : addToken(match('=') ? LESS_EQUAL : EQUAL); break;
+      case '<' : addToken(match('=') ? LESS_EQUAL : LESS); break;
 
       case '/':
         if (match('/')) {
@@ -137,13 +137,12 @@ class Lexer {
       advance();
     }
 
-    if (match('.') && isDigit(peekNext())){
+    if (peek() == '.' && isDigit(peekNext())){
       advance();
       while (isDigit(peek())) {
         advance();
       }
     }
-
     addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
   }
 

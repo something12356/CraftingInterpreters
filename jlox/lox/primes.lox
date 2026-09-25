@@ -1,0 +1,29 @@
+var n = 1;
+while (true){
+    n = n+1;
+    var prime=true;
+    for (var i=2; i<n; i = i+1){
+        var n_div_i = n/i;
+        while (n_div_i > 0){ // Idk how to check if something is an integer apart from this
+            n_div_i = n_div_i-1;
+        }
+        if (n_div_i == 0){
+            prime = false;
+        }
+        
+    }
+    if (prime){print "prime found!!"; print n;}
+}
+
+var prime = true;
+var n = 17;
+var a;
+var b = 2;
+{
+  a = 2;
+  {
+  prime = !(a*b == n);
+  a = a + 1;
+  }
+  b = b + 1;
+}

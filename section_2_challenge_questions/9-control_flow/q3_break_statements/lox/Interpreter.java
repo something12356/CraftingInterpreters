@@ -5,6 +5,7 @@ import java.util.List;
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
   private Environment environment = new Environment();
+  private Boolean needToBreak = false; // Can't use "break" since it's a java keyword!
   void interpret(List<Stmt> statements) { 
     try {
       for (Stmt statement: statements) {
@@ -27,6 +28,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
       for (Stmt statement : statements) {
         execute(statement);
+        if (needToBreak) break;
       }
     } finally {
       this.environment = previous;
@@ -83,13 +85,27 @@ class Interpreter implements Expr.Visitor<Object>,
   @Override
   public Void visitIfStmt(Stmt.If stmt) {
     if (isTruthy(evaluate(stmt.condition))) execute(stmt.thenBranch);
+    if (needToBreak) return null;
+
     else if (stmt.elseBranch != null) execute(stmt.elseBranch);
     return null;
   }
 
   @Override 
   public Void visitWhileStmt(Stmt.While stmt) {
-    while (isTruthy(evaluate(stmt.condition))) execute(stmt.body);
+    while (isTruthy(evaluate(stmt.condition))) { 
+      execute(stmt.body);
+      if (needToBreak) { 
+        needToBreak = false;
+        break;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public Void visitBreakStmt() {
+    needToBreak = true;
     return null;
   }
 

@@ -1,0 +1,7 @@
+In C++, when you do {int a = a + 2;} inside the local block, the a on the RHS is just garbage initialised! So you get some random number + 2 lmao.
+
+In Java, you get a "duplicate local variable" error.
+
+In Lox, the a on the RHS is the global a, so doing var a = 1; {int a = a + 2;} sets the local a=3. This is to be expected, the language evaluates the RHS before the local a is put into the environment, so it should evaluate to 3.
+
+Users would probably expect Lox's behaviour or Java's behaviour. C++'s is silly.

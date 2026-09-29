@@ -1,0 +1,46 @@
+I think the answer to this is recursion (+ whatever the dynamic dispatch stuff is for conditional statements, however I got it working in q1.txt). There might be other ways, but this is what makes sense to me.
+
+A while statement:
+while (condition) {
+  <code that does stuff>
+}
+
+is equivalent to:
+fun my_func(args) {
+  <code that does stuff>
+(Line L)  if (condition) my_func(args);
+}
+(Line K) my_func(args)
+
+With the caveat that you may need to pass some local variables ("args") etc depending on language to maintain state between each iteration of the "loop".
+
+The reason we need an "important optimisation" is because a dumb interpreter will grow the call stack indefinitely while running the "loop", and this will cause out of memory / stack overflow errors. The stack will look like:
+
+Call depth - Function - Arguments - Return address
+    1         my_func     args            K
+    2         my_func     args'           L
+    3         my_func     args''          L
+    ........................................
+
+Where the args, args', args'' are there to represent that the arguments might change and we need to keep track of that.
+
+Call 2 is *not needed* after we've gotten to call 3, since all we're going to do is return to call 2 and then immediately return to call 1. Call 2 does not have any code to run after call 3, call 4, call 5 etc are complete. Call 1 also doesn't have any more code to run, but it has a *different return address*, K, so we need to keep track of that. Call 2 has the exact same return address, there's no need to keep it in the stack after we've gotten to call 3!
+
+A smart interpreter would optimise this as:
+Call depth - Function - Arguments - Return address
+    1         my_func     args            K
+    2         my_func     args'           L
+(After call 2 creates call 3)
+Call depth - Function - Arguments - Return address
+    1         my_func     args            K
+    2         my_func     args''          L
+(After call 3 creates call 4)
+Call depth - Function - Arguments - Return address
+    1         my_func     args            K
+    2         my_func     args''          L
+Etc. In fact we can even get rid of the second call-frame in the stack and just have a "1, my_func, args''', K" call frame where we repeatedly update args!
+
+This optimisation is called "tail-call elimination". We have a "tail-call recursive" function, i.e. the recursion is the last line of code in the function, so we can optimise away the rest of the stack and save a ton of memory (and CPU time, not having to deal with extra stuff!) This makes it functionally equivalent to a while / for loop.
+
+Functional programming languages such as Haskell tend to use recursion instead of loops. Haskell doesn't even have loops as a built-in feature. This means tail-call elimination is particularly important for these languages so that they can have efficient loops.
+    

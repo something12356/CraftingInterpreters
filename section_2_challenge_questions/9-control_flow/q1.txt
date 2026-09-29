@@ -1,0 +1,36 @@
+Dynamic dispatch means methods have different functionality based on the arguments and that this functionality is determined *at runtime*.
+
+This can be used to implement branching statements with function overloading for the different branches you want.
+
+The if statement:
+if (condition) {
+  <code>
+}
+else {
+  <other code>
+}
+
+is equivalent to:
+weird_list = ["there must be a better way to do this", 42]
+void my_func(int x) {
+  <code>
+}
+void my_func(string x) {
+  <other code>
+}
+my_func(weird_list[bool(condition)])
+
+Because weird_list[bool(condition)] will give the string "there must be a better way to do this" if condition is falsey, since bool(falsey) = 0, and it will give the integer 42 if the condition is truthy, since int(truthy) = 1. This means the correct function gets called based on the truthyness of the condition.
+
+There is a (slightly) better way to do this, which is what Smalltalk does (a language that genuinely doesn't have if statements.) Smalltalk has a Boolean *class*, of which True and False are subclasses. Bool has two functions: ifTrue, and ifFalse, and these are overloaded by the True / False subclasses.
+
+For True, ifTrue is defined by ifTrue(func) {func()}, it calls the function that's passed to it. ifFalse is just ifFalse(func) {pass}, it does nothing.
+
+False has it the other way around.
+
+This means that calling: 
+condition.ifTrue(func1)
+condition.ifFalse(func2)
+will run the correct branch based on the truth value of condition. 
+
+Obviously Smalltalk has its own, more sensible syntax for this, I just wrote it in the more familiar C / Java syntax. What a weird language.

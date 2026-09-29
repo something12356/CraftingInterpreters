@@ -12,5 +12,5 @@ while (true){
         }
         
     }
-    if (prime){print "prime found!!"; print n;}
+    if (prime) {print "prime found!!"; print n;}
 }

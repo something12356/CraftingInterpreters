@@ -11,6 +11,7 @@ class Parser {
 
   private final List<Token> tokens;
   private final Boolean repl;
+  private Boolean inLoop = false;
   private int current = 0;
 
   Parser(List<Token> tokens, Boolean repl) {
@@ -37,6 +38,7 @@ class Parser {
     if (match(FOR)) return forStatement();
     if (match(IF)) return ifStatement();
     if (match(WHILE)) return whileStatement();
+    if (match(BREAK)) return breakStatement();
 
     return expressionStatement();
   }
@@ -65,6 +67,8 @@ class Parser {
     }
     consume(RIGHT_PAREN, "Expect ')' after for clauses.");
 
+    Boolean old_inLoop = inLoop;
+
     Stmt body = statement();
 
     if (increment != null) {
@@ -77,6 +81,8 @@ class Parser {
     if (initializer != null) {
       body = new Stmt.Block(Arrays.asList(initializer, body));
     }
+
+    inLoop = old_inLoop;
 
     return body;
   }
@@ -95,13 +101,25 @@ class Parser {
   }
 
   private Stmt whileStatement() {
+    Boolean old_inLoop = inLoop;
+    inLoop = true;
     consume(LEFT_PAREN, "Expected '(' after 'while'.");
     Expr condition = expression();
     consume(RIGHT_PAREN, "Expected ')' after while condition.");
 
     Stmt body = statement();
 
+    inLoop = old_inLoop;
+
     return new Stmt.While(condition, body);
+  }
+
+  private Stmt breakStatement() {
+    if (!inLoop) error(peek(), "Can't break outside of a loop.");
+
+    consume(SEMICOLON, "Expect ';' after value.");
+
+    return new Stmt.Break();
   }
 
   private Stmt declaration() {

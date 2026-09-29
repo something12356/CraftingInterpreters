@@ -1,0 +1,6 @@
+fun extract_digit(n, pv) {
+  
+}
+
+print extract_digit(12, 1);
+print extract_digit(12, 2);

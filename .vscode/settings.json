@@ -1,4 +1,13 @@
 {
     "editor.indentSize": 2,
     "editor.tabSize": 2,
+    // Keep challenge copies out of the Java project so their duplicate
+    // jlox.lox classes don't clash with the real ones. They still get
+    // syntax highlighting, and only syntax errors are reported.
+    "java.project.resourceFilters": [
+        "node_modules",
+        "\\.git",
+        "section_2_challenge_questions",
+        "jlox copy"
+    ],
 }

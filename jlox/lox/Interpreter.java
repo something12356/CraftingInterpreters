@@ -1,10 +1,32 @@
 package jlox.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
-  private Environment environment = new Environment();
+  // The globals Environment let's us have always defined global functions, such as clock()
+  // Also gives room to have a "global" keyword to access global variables like in python
+  final Environment globals = new Environment();
+  private Environment environment = globals;
+
+  // Our first (and only) native function, clock!
+  Interpreter() {
+    globals.define("clock", new LoxCallable() {
+      @Override
+      public int arity() { return 0; }
+
+      @Override
+      public Object call(Interpreter interpreter,
+                         List<Object> arguments) {
+        return (double)System.currentTimeMillis() / 1000.0;
+      }
+
+      @Override
+      public String toString() { return "<native fn>"; }
+    });
+  }
+
   void interpret(List<Stmt> statements) { 
     try {
       for (Stmt statement: statements) {
@@ -31,6 +53,31 @@ class Interpreter implements Expr.Visitor<Object>,
     } finally {
       this.environment = previous;
     }
+  }
+  
+  @Override
+  public Object visitCallExpr(Expr.Call expr) {
+    Object callee = evaluate(expr.callee);
+
+    List<Object> arguments = new ArrayList<>();
+    for (Expr argument : expr.arguments) { 
+      arguments.add(evaluate(argument));
+    }
+
+    // Why do we need to cast callee to LoxCallable below if we already know it's a LoxCallable?
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError(expr.paren,
+          "Can only call functions and classes.");
+    }
+
+    LoxCallable function = (LoxCallable)callee;
+    if (arguments.size() != function.arity()) {
+      throw new RuntimeError(expr.paren, "Expected " +
+          function.arity() + " arguments but got " +
+          arguments.size() + ".");
+    }
+
+    return function.call(this, arguments);
   }
 
   @Override
@@ -61,6 +108,14 @@ class Interpreter implements Expr.Visitor<Object>,
   }
 
   @Override
+  public Void visitReturnStmt(Stmt.Return stmt) {
+    Object value = null;
+    if (stmt.value != null) value = evaluate(stmt.value);
+
+    throw new Return(value);
+  }
+
+  @Override
   public Void visitVarStmt(Stmt.Var stmt) {
     Object value = null;
     if (stmt.initializer != null) {
@@ -71,6 +126,13 @@ class Interpreter implements Expr.Visitor<Object>,
       environment.define(stmt.name.lexeme); // Uninitialised variable
     }
     
+    return null;
+  }
+
+  @Override
+  public Void visitFunctionStmt(Stmt.Function stmt) {
+    LoxFunction function = new LoxFunction(stmt, environment);
+    environment.define(stmt.name.lexeme, function);
     return null;
   }
 

@@ -1,0 +1,12 @@
+fun unknown_argument_size(x) {
+  fun f(a) {print a;}
+  fun g(a,b) {print a; print b;}
+  if (x > 0) return f;
+  else return g;
+}
+
+unknown_argument_size(1)(2);
+
+unknown_argument_size(-1)(1,3);
+
+unknown_argument_size(1)(1,2);

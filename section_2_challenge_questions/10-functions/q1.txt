@@ -1,0 +1,23 @@
+Since Lox has expressions that can dynamically evaluate to functions, this is possible:
+fun unknown_argument_size(x) {
+  if (x > 0) return fun f(a) {print a;}
+  else return fun f(a,b) {print a; print b;}
+}
+
+It is then possible to determine if this is valid until runtime:
+unknown_argument_size(x)(y)
+Since the amount of arguments required depends on the value of x.
+This means Lox has to check the number of arguments in each call at runtime to ensure they're valid, it can't do it at compile time.
+
+For smalltalk to not have a performance cost either its grammar lets it check once at compile time to make sure numbers of arguments match each call, or it does checking differently during runtime (e.g. passing each argument in order and only throwing error after passed all of them? Not sure.)
+
+Okay, it *must* do the checking during runtime. How do I know this? The following Smalltalk code will run smoothly or give a "wrong argument" error depending on if you enter a number above or less than equal to 4:
+| cond |
+cond := stdin nextLine asNumber.
+
+| result |
+result := (cond > 4) ifTrue: [[:x :y | Transcript show: x printString. Transcript show: y printString]] ifFalse: [[:x | Transcript show: x printString]].
+result value: 3 value: 4.
+
+Okay, I've worked it out. Smalltalk doesn't have functions, it has *code blocks* which, like everything in Smalltalk, are a class. The code blocks class has 3 methods for being called. "<empty>, value:, value: value:, value: value: value:", so you can give it up to 3 arguments. This means "checking" the amount of arguments matches the code block's arity is more like a hashmap than what Lox does with function arity. Smalltalk gets, say, 2 arguments, and just calls the 2 argument method on the code block. If it's not defined for that specific instance of the code block class, there's an error. So I think this is why there's less performance cost?
+

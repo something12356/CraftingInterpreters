@@ -1,0 +1,13 @@
+Relatively simple challenge, just needed one extra token of look ahead in the parser to see if there was an identifier after 'FUN' (to decide if we should parse as a function statement or expression statement.)
+
+An anonymous function occuring in an expression statement works like you'd expect, it's just a function, so:
+fun (a) {return a*7;} (6) + 5;
+
+is equivalent to
+
+fun my_func(a) {
+  return a*7;
+}
+my_func(6) + 5;
+
+Obviously trying to do something like fun (a) {return a*7;} + 5; will give a type error, the same way my_func + 5; would.

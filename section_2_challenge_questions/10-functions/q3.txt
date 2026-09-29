@@ -1,0 +1,13 @@
+fun scope(a) {
+  var a = "local";
+}
+
+This *is valid* in Lox, but only because redefining variables is allowed. The parameters are defined in the function *after* the environment has been set, they're in the same scope as local function variables.
+
+Java has the same scoping behaviour as Lox but doesn't allow redefining variables, so it's not valid. 
+
+C++ complains about you "shadowing a parameter" and also doesn't allow this code. Since it mentions "shadowing" presumably the parameter variables live in a wider scope? Function parameters in C++ are instantiated *before any variables in the function body* so it's possible that some implementations would let you redeclare inside the function body? Probably not though.
+
+Python has implicit variable declaration so you just, genuinely can't tell.
+
+I think keeping parameters and local function variables in the same scope makes sense, and I think you should show an error when a user tries to redefine a parameter since they probably don't want to do that in most cases.

@@ -1,0 +1,2 @@
+It's safe to eagerly define a function because a function's "initialiser" is always just a name, it can't use any existing variables so there won't ever be a "var a = a;" problem to deal with.
+

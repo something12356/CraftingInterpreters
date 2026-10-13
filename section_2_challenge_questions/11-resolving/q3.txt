@@ -1,0 +1,3 @@
+First we need to store a bit of extra information about variables in the scope hashmap so we'll define the class "ScopeEntry" to store three things: "Boolean defined, Boolean used, Integer line" which are all pretty self explanatory. We initialise "used" to be false and set it to true if we resolve the variable. 
+
+At the end of a scope we check every variable declared in that scope to check if it was used - if it wasn't we report an error and tell the user the line of the declaration of the unused variable.

@@ -1,0 +1,3 @@
+C++ lets you do redefine variables in smaller scopes and creates a new variable for the inner scope. Java throws a compile error. 
+
+I think it should usually be a compile error, the user probably doesn't realise they're redefining a variable. I think it should work however when it's inside a function in which case the inner variable should shadow the outer one.
